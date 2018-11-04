@@ -1,0 +1,48 @@
+#!/bin/sh
+echo "Service Chaining Demo" 
+
+echo "Creating a POD on Red network [Press enter]:" 
+read name 
+kubectl create -f pods/ubuntu.yaml
+
+echo " Waiting for Client POD to come up" 
+sleep 30
+
+echo "Creating a Webserver on Orange network [Press enter]:"
+read name
+kubectl create -f pods/rc-frontend.yaml
+
+echo " Waiting for Webservers to come up" 
+sleep 30
+
+echo "Verify the POD"
+
+kubectl get pods -o wide 
+
+echo " Feel free to verify traffic and it wont work :)"
+sleep 20
+echo "Now inserting a firewall to service chain the client and web pod" 
+read b
+kubectl apply -f pods/csrx-deployment.yaml
+
+echo " Waiting for CSRX to boot up"
+sleep 40
+
+echo "Verify the PODs"
+
+kubectl get pods -o wide
+
+echo "Apply CSRX config"
+
+conf/configure-csrx 
+
+sleep 30
+echo "CSRX Configured" 
+
+echo "Add the CSRX interface to the SI instance" 
+
+echo "Press Enter:"
+
+read me
+
+echo "Test the Traffic from the client to the webserver :)"

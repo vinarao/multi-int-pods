@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csrx
+  labels:
+    app: csrx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: csrx
+  template:
+    metadata:
+      labels:
+        app: csrx
+      annotations:
+        "opencontrail.org/network": '[
+             {"domain":"default-domain", "project": "default", "name": "cnf-mgmt-network"},
+             {"domain":"default-domain", "project": "default", "name": "left-network"},
+             {"domain":"default-domain", "project": "default", "name": "cnf-net"}
+             ]'
+    spec:
+      containers:
+      - name: csrx
+        image: csrx
+        volumeMounts:
+        - name: wrapper
+          mountPath: /scripts
+        ports:
+        - containerPort: 22
+        imagePullPolicy: Never
+        stdin: true
+        tty: true
+        env:
+        - name: CSRX_ROOT_PASSWORD 
+          value: "contrail123"
+        securityContext:
+          privileged: true
+      volumes:
+      - name: wrapper
+        configMap:
+          name: wrapper
+          defaultMode: 0744

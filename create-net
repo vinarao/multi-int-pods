@@ -1,0 +1,3 @@
+kubectl create -f left-network.yaml 
+kubectl create -f right-network.yaml
+kubectl get net-attach-def

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmx
+  labels:
+    app: cmx
+  annotations:
+    networks: '[  
+        { "name": "contrail-k8s-cni" },
+        { "name": "sriov-net1" },
+    ]'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cmx
+  template:
+    metadata:
+      labels:
+        app: cmx
+      annotations:
+        "opencontrail.org/network": '[
+             {"domain":"default-domain", "project": "default", "name": "blue-net"},
+             {"domain":"default-domain", "project": "default", "name": "red-net"},
+             {"domain":"default-domain", "project": "default", "name": "orange-net"}
+             ]'
+    spec:
+      containers:
+      - name: cmx
+        image: cmx
+        volumeMounts:
+        - name: wrapper
+          mountPath: /scripts
+        ports:
+        - containerPort: 22
+        imagePullPolicy: Never
+        stdin: true
+        tty: true
+        env:
+        - name: CSRX_ROOT_PASSWORD 
+          value: "contrail123"
+        securityContext:
+          privileged: true
+      volumes:
+      - name: wrapper
+        configMap:
+          name: wrapper
+          defaultMode: 0744

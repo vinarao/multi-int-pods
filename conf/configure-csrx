@@ -1,0 +1,5 @@
+node=$(kubectl get pod | grep -i csrx | cut -d " " -f1)
+echo $node
+/scripts/config.sh
+kubectl cp /scripts/conf.txt $node:/root/.
+kubectl exec -it $node /scripts/wrapper.sh 

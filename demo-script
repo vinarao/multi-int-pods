@@ -1,0 +1,51 @@
+#!/bin/sh
+echo "Service Chaining Demo" 
+
+echo "Creating a POD on Left network" 
+
+kubectl create -f pods/ubuntu.yaml
+sleep 25
+kubectl exec demo-client ip route add 2.2.2.0/24 dev eth1
+
+echo " Waiting for Client POD to come up" 
+sleep 10 
+read -p "Press any key to continue... " -n1 -s
+
+echo "Creating a Webserver on Contrail network"
+
+kubectl create -f pods/rc-frontend.yaml
+
+web=$(kubectl get pods | grep -i webserver | cut -d " " -f1)
+
+echo $web
+sleep 20
+kubectl exec $web ip route add 1.1.1.0/24 dev eth1
+
+echo " Waiting for Webservers to come up" 
+read -p "Press any key to continue... " -n1 -s
+
+echo "Verify the POD"
+
+kubectl get pods -o wide 
+
+echo " Feel free to verify traffic and it wont work :)"
+
+echo "Now inserting a firewall to service chain the client and web pod" 
+
+kubectl apply -f pods/csrx-deployment.yaml
+
+echo " Waiting for CSRX to boot up"
+echo "Verify the PODs"
+
+echo "Apply CSRX config"
+
+conf/configure-csrx 
+
+sleep 30
+echo "CSRX Configured" 
+
+echo "Apply the service chain configuration to CSRX interface in Contrail UI" 
+
+read -p "Press any key to continue... " -n1 -s
+
+echo "Test the Traffic from the client to the webserver :)"

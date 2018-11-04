@@ -1,0 +1,41 @@
+#!/bin/sh
+echo "Service Chaining Demo" 
+
+echo "Creating a POD on Red network [Press enter]:" 
+read name 
+kubectl create -f pods/ubuntu.yaml
+
+echo " Waiting for Client POD to come up" 
+sleep 30
+
+echo "Creating a Webserver on Orange network [Press enter]:"
+read name
+kubectl create -f pods/rc-frontend.yaml
+
+echo " Waiting for Webservers to come up" 
+sleep 30
+
+echo "Verify the POD"
+
+kubectl get pods -o wide 
+
+echo " Feel free to verify traffic and it wont work :)"
+sleep 20
+
+echo "Now inserting an ubuntu pod between the client and web pod" 
+
+kubectl apply -f pods/ubuntu-sr.yaml
+
+echo " Waiting for Ubuntu-pod to boot up"
+sleep 30
+echo "Verify the PODs"
+
+kubectl get pods -o wide
+
+echo "Enablng ipv4 forwarding "
+kubectl exec router sysctl net.ipv4.ip_forward
+
+echo "Attach the interface to Service Insatnce and update the Network Policy" 
+echo "Press Enter:" 
+read name
+echo "Test the Traffic from the client to the webserver :)"

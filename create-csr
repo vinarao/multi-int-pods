@@ -1,0 +1,25 @@
+echo "Now inserting a firewall to service chain the client and web pod" 
+
+kubectl apply -f pods/csrx-deployment.yaml
+
+echo " Waiting for CSRX to boot up"
+sleep 40
+
+echo "Verify the PODs"
+
+kubectl get pods -o wide
+
+echo "Apply CSRX config"
+
+conf/configure-csrx 
+
+sleep 30
+echo "CSRX Configured" 
+
+echo "Add the CSRX interface to the SI instance" 
+
+echo "Press Enter:"
+
+read me
+
+echo "Test the Traffic from the client to the webserver :)"

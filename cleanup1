@@ -1,0 +1,5 @@
+kubectl delete pod hello-world
+kubectl delete pod client
+kubectl delete pod router
+kubectl delete rc webserver
+kubectl delete deployment csrx
